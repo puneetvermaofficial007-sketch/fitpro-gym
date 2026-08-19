@@ -6,6 +6,8 @@ use App\Models\Attendance;
 use App\Models\Enquiry;
 use App\Models\Invoice;
 use App\Models\Member;
+use App\Models\Product;
+use App\Models\ProductSale;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -19,8 +21,15 @@ class DashboardController extends Controller
             'expired_memberships' => Member::expired()->count(),
             'expiring_soon' => Member::expiringSoon(7)->count(),
             'today_attendance' => Attendance::where('date', today())->where('status', 'present')->count(),
-            'today_revenue' => Invoice::where('payment_status', 'paid')->whereDate('invoice_date', today())->sum('final_amount'),
+            'today_membership_revenue' => Invoice::where('payment_status', 'paid')->whereDate('invoice_date', today())->sum('final_amount'),
+            'today_product_revenue' => ProductSale::where('payment_status', 'paid')->whereDate('sale_date', today())->sum('total'),
+            'today_revenue' => Invoice::where('payment_status', 'paid')->whereDate('invoice_date', today())->sum('final_amount')
+                + ProductSale::where('payment_status', 'paid')->whereDate('sale_date', today())->sum('total'),
             'pending_payments' => Invoice::where('payment_status', 'pending')->sum('final_amount'),
+            'total_products' => Product::count(),
+            'low_stock' => Product::lowStock()->count(),
+            'out_of_stock' => Product::outOfStock()->count(),
+            'today_product_sales' => ProductSale::whereDate('sale_date', today())->count(),
         ];
 
         $liveActiveMembers = Member::active()
@@ -42,6 +51,11 @@ class DashboardController extends Controller
 
         $recentEnquiries = Enquiry::latest()->take(5)->get();
 
+        $recentProductSales = ProductSale::with('member')
+            ->latest('sale_date')
+            ->take(5)
+            ->get();
+
         $revenueData = $this->getRevenueChartData('weekly');
 
         $attendanceData = $this->getAttendanceChartData();
@@ -54,6 +68,7 @@ class DashboardController extends Controller
             'recentMembers',
             'expiringMemberships',
             'recentEnquiries',
+            'recentProductSales',
             'revenueData',
             'attendanceData',
             'notifications',
@@ -76,9 +91,13 @@ class DashboardController extends Controller
             for ($i = 6; $i >= 0; $i--) {
                 $date = now()->subDays($i);
                 $labels[] = $date->format('D');
-                $values[] = (float) Invoice::where('payment_status', 'paid')
+                $membership = (float) Invoice::where('payment_status', 'paid')
                     ->whereDate('invoice_date', $date)
                     ->sum('final_amount');
+                $product = (float) ProductSale::where('payment_status', 'paid')
+                    ->whereDate('sale_date', $date)
+                    ->sum('total');
+                $values[] = $membership + $product;
             }
         }
 

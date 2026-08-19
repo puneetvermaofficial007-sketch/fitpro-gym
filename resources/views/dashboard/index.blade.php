@@ -9,11 +9,13 @@
 <div class="mb-6 flex flex-wrap gap-2">
     @foreach([
         ['Add Member', route('members.create'), 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
-        ['Create Invoice', '#', 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'],
-        ['Mark Attendance', '#', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-        ['Add Enquiry', '#', 'M12 4v16m8-8H4'],
-        ['Create Diet Plan', '#', 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-        ['Renew Membership', '#', 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+        ['Create Invoice', route('invoices.create'), 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'],
+        ['Mark Attendance', route('attendance.mark'), 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+        ['Add Enquiry', route('enquiries.create'), 'M12 4v16m8-8H4'],
+        ['Create Diet Plan', route('diet-plans.create'), 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+        ['Renew Membership', route('memberships.renewals'), 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+        ['New Sale', route('sales.pos'), 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'],
+        ['Purchase Stock', route('inventory.purchases.create'), 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
     ] as [$label, $url, $icon])
         <a href="{{ $url }}" class="btn btn-secondary btn-sm">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
@@ -40,6 +42,27 @@
         :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z\'/></svg>'" />
     <x-stat-card label="Pending Payments" :value="'₹' . number_format($stats['pending_payments'])" trend="3 invoices" color="amber"
         :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z\'/></svg>'" />
+</div>
+
+{{-- Inventory Stats --}}
+<div class="mb-6">
+    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Inventory & Product Sales</h3>
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        @foreach([
+            ['Total Products', $stats['total_products']],
+            ['Low Stock', $stats['low_stock']],
+            ['Out of Stock', $stats['out_of_stock']],
+            ['Today\'s Sales', $stats['today_product_sales']],
+            ['Product Revenue', '₹' . number_format($stats['today_product_revenue'])],
+        ] as [$label, $value])
+            <div class="card p-4"><p class="text-xs text-slate-500">{{ $label }}</p><p class="text-xl font-bold text-slate-900">{{ $value }}</p></div>
+        @endforeach
+    </div>
+    <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="card p-4"><p class="text-xs text-slate-500">Membership Revenue (Today)</p><p class="text-lg font-bold text-blue-600">₹{{ number_format($stats['today_membership_revenue']) }}</p></div>
+        <div class="card p-4"><p class="text-xs text-slate-500">Product Revenue (Today)</p><p class="text-lg font-bold text-emerald-600">₹{{ number_format($stats['today_product_revenue']) }}</p></div>
+        <div class="card p-4"><p class="text-xs text-slate-500">Total Revenue (Today)</p><p class="text-lg font-bold text-slate-900">₹{{ number_format($stats['today_revenue']) }}</p></div>
+    </div>
 </div>
 
 {{-- Charts Row --}}
@@ -194,13 +217,37 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <p class="text-xs text-slate-400">{{ $member->phone }}</p>
-                        <button class="btn btn-primary btn-sm">Renew</button>
+                        <a href="{{ route('memberships.renewals') }}" class="btn btn-primary btn-sm">Renew</a>
                     </div>
                 </div>
             @empty
                 <div class="px-6 py-8 text-center text-sm text-slate-400">No expiring memberships</div>
             @endforelse
         </div>
+    </div>
+</div>
+
+{{-- Recent Product Sales --}}
+<div class="card mb-6">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <h3 class="text-base font-semibold text-slate-900">Recent Product Sales</h3>
+        <a href="{{ route('sales.index') }}" class="text-sm text-primary-600 hover:underline">View All</a>
+    </div>
+    <div class="divide-y divide-slate-100">
+        @forelse($recentProductSales as $sale)
+            <div class="flex items-center justify-between px-6 py-3 hover:bg-slate-50">
+                <div>
+                    <p class="font-mono text-sm font-medium">{{ $sale->sale_number }}</p>
+                    <p class="text-xs text-slate-500">{{ $sale->customerDisplayName() }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-emerald-600">₹{{ number_format($sale->total) }}</p>
+                    <p class="text-xs text-slate-400">{{ $sale->sale_date->diffForHumans() }}</p>
+                </div>
+            </div>
+        @empty
+            <p class="px-6 py-8 text-center text-slate-400 text-sm">No product sales yet</p>
+        @endforelse
     </div>
 </div>
 

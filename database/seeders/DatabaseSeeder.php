@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Attendance;
 use App\Models\DietPlan;
 use App\Models\Enquiry;
+use App\Models\GymNotification;
 use App\Models\Invoice;
 use App\Models\Member;
 use App\Models\MembershipPlan;
@@ -95,7 +96,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $dietPlan = DietPlan::create([
+        DietPlan::create([
             'name' => 'Weight Loss Plan',
             'goal' => 'Fat Loss',
             'calories' => 1800,
@@ -140,5 +141,19 @@ class DatabaseSeeder extends Seeder
             'follow_up_date' => today(),
             'status' => 'follow_up',
         ]);
+
+        $admin = User::first();
+        if ($admin) {
+            foreach ([
+                ['type' => 'warning', 'title' => 'Membership Expiring Soon', 'message' => '3 memberships expire within 7 days', 'link' => '/memberships/expiring'],
+                ['type' => 'danger', 'title' => 'Payment Pending', 'message' => '2 invoices are overdue', 'link' => '/invoices?filter=overdue'],
+                ['type' => 'info', 'title' => 'New Enquiry', 'message' => 'Deepak Verma submitted a new enquiry', 'link' => '/enquiries'],
+                ['type' => 'warning', 'title' => 'Low Stock Alert', 'message' => 'Some products are running low on stock', 'link' => '/inventory/low-stock'],
+            ] as $n) {
+                GymNotification::create([...$n, 'user_id' => $admin->id]);
+            }
+        }
+
+        $this->call(InventorySeeder::class);
     }
 }

@@ -8,7 +8,7 @@
 <div class="max-w-4xl">
     <form method="POST" action="{{ route('members.update', $member) }}" class="card p-6">
         @csrf @method('PUT')
-        @include('members._form', ['member' => $member, 'plans' => $plans])
+        @include('members._form', ['member' => $member, 'plans' => $plans, 'lockers' => $lockers])
 
         <div class="mt-6 flex items-center gap-3 border-t border-slate-100 pt-6">
             <button type="submit" class="btn btn-primary">Update Member</button>

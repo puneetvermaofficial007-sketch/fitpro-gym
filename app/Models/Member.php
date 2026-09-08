@@ -30,6 +30,9 @@ class Member extends Model
         'payment_status',
         'status',
         'notes',
+        'medical_report',
+        'instagram_id',
+        'locker_id',
         'checked_in_at',
     ];
 
@@ -47,6 +50,11 @@ class Member extends Model
     public function membershipPlan(): BelongsTo
     {
         return $this->belongsTo(MembershipPlan::class);
+    }
+
+    public function locker(): BelongsTo
+    {
+        return $this->belongsTo(Locker::class);
     }
 
     public function invoices(): HasMany
@@ -135,5 +143,19 @@ class Member extends Model
         $next = $last ? $last->id + 1 : 1;
 
         return 'GYM-'.str_pad((string) $next, 5, '0', STR_PAD_LEFT);
+    }
+
+    public static function normalizeInstagramId(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+        $value = preg_replace('#^https?://(www\.)?instagram\.com/#i', '', $value) ?? $value;
+        $value = ltrim($value, '@/');
+        $value = explode('?', explode('/', $value)[0])[0];
+
+        return $value !== '' ? $value : null;
     }
 }

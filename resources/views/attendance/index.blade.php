@@ -43,5 +43,6 @@
         </tbody>
     </table>
     @if($attendances->hasPages())<div class="px-6 py-4 border-t">{{ $attendances->links() }}</div>@endif
+      @if($attendances->hasPages())<div class="px-6 py-4 border-t">{{ $attendances->links() }}</div>@endif
 </div>
 @endsection

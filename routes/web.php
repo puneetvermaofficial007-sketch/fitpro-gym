@@ -13,6 +13,7 @@ use App\Http\Controllers\Inventory\PurchaseController;
 use App\Http\Controllers\Inventory\StockAdjustmentController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Inventory\SupplierController;
+use App\Http\Controllers\LockerController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\NotificationController;
@@ -42,6 +43,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/{member}', [MemberController::class, 'update'])->name('update');
         Route::delete('/{member}', [MemberController::class, 'destroy'])->name('destroy');
         Route::patch('/{member}/toggle-status', [MemberController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    Route::prefix('lockers')->name('lockers.')->group(function () {
+        Route::get('/', [LockerController::class, 'index'])->name('index');
+        Route::get('/create', [LockerController::class, 'create'])->name('create');
+        Route::post('/', [LockerController::class, 'store'])->name('store');
+        Route::get('/{locker}/edit', [LockerController::class, 'edit'])->name('edit');
+        Route::put('/{locker}', [LockerController::class, 'update'])->name('update');
+        Route::delete('/{locker}', [LockerController::class, 'destroy'])->name('destroy');
+        Route::get('/{locker}/assign', [LockerController::class, 'assignForm'])->name('assign');
+        Route::post('/{locker}/assign', [LockerController::class, 'assign'])->name('assign.store');
+        Route::post('/{locker}/unassign', [LockerController::class, 'unassign'])->name('unassign');
     });
 
     Route::prefix('memberships')->name('memberships.')->group(function () {

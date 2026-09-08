@@ -12,7 +12,11 @@
         <div class="flex items-start gap-4 p-4 {{ !$n->is_read ? 'bg-primary-50/50' : '' }}">
             <div class="mt-1 h-2 w-2 shrink-0 rounded-full {{ match($n->type){ 'danger'=>'bg-red-500','warning'=>'bg-amber-500','success'=>'bg-emerald-500',default=>'bg-blue-500' } }}"></div>
             <div class="flex-1">
-                <p class="font-medium text-slate-900">{{ $n->title }}</p>
+                @if($n->link)
+                    <a href="{{ $n->link }}" class="font-medium text-slate-900 hover:text-primary-600">{{ $n->title }}</a>
+                @else
+                    <p class="font-medium text-slate-900">{{ $n->title }}</p>
+                @endif
                 <p class="text-sm text-slate-600 mt-0.5">{{ $n->message }}</p>
                 <p class="text-xs text-slate-400 mt-1">{{ $n->created_at->diffForHumans() }}</p>
             </div>

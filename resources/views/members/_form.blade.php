@@ -1,4 +1,4 @@
-@props(['member' => null, 'plans'])
+@props(['member' => null, 'plans', 'lockers' => []])
 
 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
     <div>
@@ -81,6 +81,24 @@
         </div>
     @endif
     <div>
+        <label class="form-label">Instagram ID</label>
+        <input type="text" name="instagram_id" value="{{ old('instagram_id', $member?->instagram_id) }}" class="form-input @error('instagram_id') border-red-500 @enderror" placeholder="john_doe">
+        <p class="mt-1 text-xs text-slate-400">Username only — no instagram.com URL needed.</p>
+        @error('instagram_id')<p class="form-error">{{ $message }}</p>@enderror
+    </div>
+    <div>
+        <label class="form-label">Locker</label>
+        <select name="locker_id" class="form-input @error('locker_id') border-red-500 @enderror">
+            <option value="">Select Locker</option>
+            @foreach($lockers as $locker)
+                <option value="{{ $locker->id }}" @selected(old('locker_id', $member?->locker_id) == $locker->id)>
+                    {{ $locker->locker_code }}{{ $locker->id == $member?->locker_id ? ' (current)' : '' }}
+                </option>
+            @endforeach
+        </select>
+        @error('locker_id')<p class="form-error">{{ $message }}</p>@enderror
+    </div>
+    <div>
         <label class="form-label">Payment Status *</label>
         <select name="payment_status" class="form-input" required>
             @foreach(['paid', 'pending', 'overdue'] as $status)
@@ -91,5 +109,10 @@
     <div class="md:col-span-2">
         <label class="form-label">Notes</label>
         <textarea name="notes" rows="3" class="form-input">{{ old('notes', $member?->notes) }}</textarea>
+    </div>
+    <div class="md:col-span-2">
+        <label class="form-label">Medical Report</label>
+        <textarea name="medical_report" rows="4" class="form-input @error('medical_report') border-red-500 @enderror" placeholder="Enter medical conditions, injuries, allergies, medications, doctor's advice, or other notes.">{{ old('medical_report', $member?->medical_report) }}</textarea>
+        @error('medical_report')<p class="form-error">{{ $message }}</p>@enderror
     </div>
 </div>

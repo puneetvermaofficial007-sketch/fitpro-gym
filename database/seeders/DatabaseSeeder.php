@@ -7,6 +7,7 @@ use App\Models\DietPlan;
 use App\Models\Enquiry;
 use App\Models\GymNotification;
 use App\Models\Invoice;
+use App\Models\Locker;
 use App\Models\Member;
 use App\Models\MembershipPlan;
 use App\Models\User;
@@ -55,7 +56,7 @@ class DatabaseSeeder extends Seeder
                 'last_name' => $last,
                 'email' => $email,
                 'phone' => $phone,
-                'date_of_birth' => now()->subYears(rand(20, 45))->format('Y-m-d'),
+                'date_of_birth' => $index === 0 ? now()->subYears(28)->format('Y-m-d') : now()->subYears(rand(20, 45))->format('Y-m-d'),
                 'gender' => $gender,
                 'address' => '123 Fitness Street, City',
                 'emergency_contact_name' => 'Emergency Contact',
@@ -67,9 +68,20 @@ class DatabaseSeeder extends Seeder
                 'payment_status' => $payment,
                 'status' => $status === 'expired' ? 'expired' : ($expiryDays < 0 ? 'expired' : 'active'),
                 'checked_in_at' => $index < 3 ? now()->subHours(rand(1, 3)) : null,
+                'instagram_id' => $index === 0 ? 'rahul_fits' : null,
+                'medical_report' => $index === 0 ? 'Mild knee pain. Avoid heavy squats. No known allergies.' : null,
             ]);
             $members->push($member);
         }
+
+        $lockers = collect();
+        foreach (range(101, 110) as $number) {
+            $lockers->push(Locker::create([
+                'locker_code' => 'L-'.$number,
+                'status' => 'available',
+            ]));
+        }
+        $lockers->first()->assignTo($members->first());
 
         foreach ($members->take(5) as $member) {
             Invoice::create([

@@ -33,7 +33,7 @@
                 </div>
                 <div class="max-h-64 overflow-y-auto p-2">
                     @forelse($headerNotifications ?? [] as $notification)
-                        <a href="{{ route('notifications.index') }}" class="flex gap-3 rounded-lg p-3 hover:bg-slate-50 {{ !$notification->is_read ? 'bg-primary-50/50' : '' }}">
+                        <a href="{{ $notification->link ?: route('notifications.index') }}" class="flex gap-3 rounded-lg p-3 hover:bg-slate-50 {{ !$notification->is_read ? 'bg-primary-50/50' : '' }}">
                             <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full {{ match($notification->type) { 'warning' => 'bg-amber-500', 'danger' => 'bg-red-500', 'success' => 'bg-emerald-500', default => 'bg-blue-500' } }}"></div>
                             <div>
                                 <p class="text-sm font-medium text-slate-900">{{ $notification->title }}</p>

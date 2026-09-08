@@ -45,6 +45,12 @@
                     {{ $member->address }}
                 </div>
             @endif
+            @if($member->instagram_id)
+                <div class="flex items-center gap-3 text-slate-600">
+                    <svg class="h-4 w-4 shrink-0 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5A4.25 4.25 0 007.75 20.5h8.5a4.25 4.25 0 004.25-4.25v-8.5A4.25 4.25 0 0016.25 3.5h-8.5zM12 7a5 5 0 110 10 5 5 0 010-10zm0 1.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM17.5 6a1 1 0 110 2 1 1 0 010-2z"/></svg>
+                    <a href="https://instagram.com/{{ $member->instagram_id }}" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:underline">{{ '@'.$member->instagram_id }}</a>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -59,6 +65,9 @@
                     ['Gender', ucfirst($member->gender ?? '-')],
                     ['Emergency Contact', $member->emergency_contact_name ?? '-'],
                     ['Emergency Phone', $member->emergency_contact_phone ?? '-'],
+                    ['Instagram ID', $member->instagram_id ? '@'.$member->instagram_id : '-'],
+                    ['Locker', $member->locker?->locker_code ?? 'Not assigned'],
+                    ['Locker Status', $member->locker ? ucfirst($member->locker->status) : '-'],
                 ] as [$label, $value])
                     <div>
                         <p class="text-xs font-medium uppercase text-slate-400">{{ $label }}</p>
@@ -155,6 +164,15 @@
                         </tbody>
                     </table>
                 </div>
+            @endif
+        </div>
+
+        <div class="card p-6">
+            <h3 class="mb-2 text-base font-semibold text-slate-900">Medical Report</h3>
+            @if($member->medical_report)
+                <p class="whitespace-pre-line text-sm text-slate-600">{{ $member->medical_report }}</p>
+            @else
+                <p class="text-sm text-slate-400">No medical notes recorded.</p>
             @endif
         </div>
 

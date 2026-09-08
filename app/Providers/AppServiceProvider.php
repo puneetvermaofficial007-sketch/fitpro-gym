@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\GymNotification;
+use App\Services\BirthdayNotificationService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('components.header', function ($view) {
             if (auth()->check()) {
+                if (Cache::add('birthday_notifications_'.now()->toDateString(), true, now()->endOfDay())) {
+                    app(BirthdayNotificationService::class)->sendForToday();
+                }
+
                 $view->with([
                     'headerNotifications' => GymNotification::where('user_id', auth()->id())
                         ->latest()

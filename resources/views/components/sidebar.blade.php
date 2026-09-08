@@ -2,7 +2,7 @@
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar transition-transform duration-300 lg:translate-x-0"
 >
-    <div class="flex h-16 items-center gap-3 border-b border-slate-700/50 px-5">
+    <!-- <div class="flex h-16 items-center gap-3 border-b border-slate-700/50 px-5">
         <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
@@ -10,7 +10,22 @@
             <h1 class="text-base font-bold text-white">FitPro Gym</h1>
             <p class="text-xs text-slate-400">Management System</p>
         </div>
+    </div> -->
+
+    <div class="flex h-16 items-center gap-3 border-b border-slate-700/50 px-5">
+    <div class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden bg-white">
+        <img
+            src="https://scontent.cdninstagram.com/v/t51.82787-19/655091763_17851872411689945_8644710637323591443_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=109&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=F9OnJTfpVdcQ7kNvwE3cGvj&_nc_oc=AdpWkwQXT-i_ouWrDVnUc0OQSzwvPnBa2tDxlu1Qe7cZMg9EVhuusvD1R37-rVhFB7TSru3lX65XmrL_Km2r8nEn&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=qtcDn1efzb0Ty0OdVHv2og&_nc_ss=7b689&oh=00_AQKJT24RuvdyeZD3S4n56sC-UeWeT5BpfJxeWW3n9rKsNQ&oe=6A9C9D73"
+            alt="FitPro Gym Logo"
+            class="h-full w-full object-contain"
+        >
     </div>
+
+    <div>
+        <h1 class="text-base font-bold text-white">Akhada Fitness Club</h1>
+        <p class="text-xs text-slate-400">Find our inner peace</p>
+    </div>
+</div>
 
     @php
         $open = fn($routes) => request()->routeIs($routes) ? 'true' : 'false';
@@ -19,6 +34,7 @@
     <nav class="sidebar-scroll flex-1 overflow-y-auto px-3 py-4 space-y-1" x-data="{
         openMenus: {
             members: {{ $open('members.*') }},
+            lockers: {{ $open('lockers.*') }},
             memberships: {{ $open('memberships.*') }},
             invoices: {{ $open('invoices.*') }},
             attendance: {{ $open('attendance.*') }},
@@ -50,6 +66,23 @@
                 <a href="{{ route('members.index', ['filter' => 'active']) }}" class="sidebar-link text-xs {{ request('filter') === 'active' ? 'sidebar-link-active' : '' }}">Active Members</a>
                 <a href="{{ route('members.index', ['filter' => 'expired']) }}" class="sidebar-link text-xs {{ request('filter') === 'expired' ? 'sidebar-link-active' : '' }}">Expired Members</a>
                 <a href="{{ route('members.index', ['filter' => 'deleted']) }}" class="sidebar-link text-xs {{ request('filter') === 'deleted' ? 'sidebar-link-active' : '' }}">Deleted Members</a>
+            </div>
+        </div>
+
+        {{-- Lockers --}}
+        <div>
+            <button @click="openMenus.lockers = !openMenus.lockers" class="sidebar-link w-full justify-between {{ request()->routeIs('lockers.*') ? 'sidebar-link-active' : '' }}">
+                <span class="flex items-center gap-3">
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0v4m-9 0h10a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6a2 2 0 012-2z"/></svg>
+                    Lockers
+                </span>
+                <svg :class="openMenus.lockers ? 'rotate-180' : ''" class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="openMenus.lockers" x-transition class="ml-4 mt-1 space-y-0.5 border-l border-slate-700 pl-3">
+                <a href="{{ route('lockers.index') }}" class="sidebar-link text-xs {{ request()->routeIs('lockers.index') && !request('filter') ? 'sidebar-link-active' : '' }}">All Lockers</a>
+                <a href="{{ route('lockers.create') }}" class="sidebar-link text-xs {{ request()->routeIs('lockers.create') ? 'sidebar-link-active' : '' }}">Add Locker</a>
+                <a href="{{ route('lockers.index', ['filter' => 'available']) }}" class="sidebar-link text-xs {{ request('filter') === 'available' ? 'sidebar-link-active' : '' }}">Available Lockers</a>
+                <a href="{{ route('lockers.index', ['filter' => 'assigned']) }}" class="sidebar-link text-xs {{ request('filter') === 'assigned' ? 'sidebar-link-active' : '' }}">Assigned Lockers</a>
             </div>
         </div>
 

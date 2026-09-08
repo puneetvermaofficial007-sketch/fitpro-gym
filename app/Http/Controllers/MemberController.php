@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Locker;
 use App\Models\Member;
 use App\Models\MembershipPlan;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class MemberController extends Controller
 {
@@ -49,8 +51,9 @@ class MemberController extends Controller
     public function create()
     {
         $plans = MembershipPlan::active()->get();
+        $lockers = Locker::available()->orderBy('locker_code')->get();
 
-        return view('members.create', compact('plans'));
+        return view('members.create', compact('plans', 'lockers'));
     }
 
     public function store(Request $request)
@@ -70,13 +73,20 @@ class MemberController extends Controller
             'membership_start_date' => ['nullable', 'date'],
             'payment_status' => ['required', 'in:paid,pending,overdue'],
             'notes' => ['nullable', 'string'],
+            'medical_report' => ['nullable', 'string'],
+            'instagram_id' => ['nullable', 'string', 'max:100'],
+            'locker_id' => ['nullable', 'exists:lockers,id'],
         ]);
+
+        $validated['instagram_id'] = Member::normalizeInstagramId($validated['instagram_id'] ?? null);
+        $lockerId = ! empty($validated['locker_id']) ? (int) $validated['locker_id'] : null;
+        unset($validated['locker_id']);
 
         $plan = MembershipPlan::findOrFail($validated['membership_plan_id']);
         $startDate = $validated['membership_start_date'] ?? $validated['joining_date'];
         $expiryDate = \Carbon\Carbon::parse($startDate)->addDays($plan->duration_days);
 
-        Member::create([
+        $member = Member::create([
             ...$validated,
             'member_code' => Member::generateMemberCode(),
             'membership_start_date' => $startDate,
@@ -84,12 +94,14 @@ class MemberController extends Controller
             'status' => 'active',
         ]);
 
+        $this->syncMemberLocker($member, $lockerId);
+
         return redirect()->route('members.index')->with('success', 'Member added successfully.');
     }
 
     public function show(Member $member)
     {
-        $member->load(['membershipPlan', 'invoices.membershipPlan', 'attendances', 'activeDietPlan.dietPlan']);
+        $member->load(['membershipPlan', 'invoices.membershipPlan', 'attendances', 'activeDietPlan.dietPlan', 'locker']);
 
         return view('members.show', compact('member'));
     }
@@ -97,8 +109,12 @@ class MemberController extends Controller
     public function edit(Member $member)
     {
         $plans = MembershipPlan::active()->get();
+        $lockers = Locker::available()
+            ->when($member->locker_id, fn ($query) => $query->orWhere('id', $member->locker_id))
+            ->orderBy('locker_code')
+            ->get();
 
-        return view('members.edit', compact('member', 'plans'));
+        return view('members.edit', compact('member', 'plans', 'lockers'));
     }
 
     public function update(Request $request, Member $member)
@@ -120,15 +136,24 @@ class MemberController extends Controller
             'payment_status' => ['required', 'in:paid,pending,overdue'],
             'status' => ['required', 'in:active,inactive,expired'],
             'notes' => ['nullable', 'string'],
+            'medical_report' => ['nullable', 'string'],
+            'instagram_id' => ['nullable', 'string', 'max:100'],
+            'locker_id' => ['nullable', Rule::exists('lockers', 'id')],
         ]);
 
+        $validated['instagram_id'] = Member::normalizeInstagramId($validated['instagram_id'] ?? null);
+        $lockerId = ! empty($validated['locker_id']) ? (int) $validated['locker_id'] : null;
+        unset($validated['locker_id']);
+
         $member->update($validated);
+        $this->syncMemberLocker($member->fresh(), $lockerId);
 
         return redirect()->route('members.show', $member)->with('success', 'Member updated successfully.');
     }
 
     public function destroy(Member $member)
     {
+        $member->locker?->release();
         $member->delete();
 
         return redirect()->route('members.index', ['filter' => 'deleted'])
@@ -151,5 +176,22 @@ class MemberController extends Controller
         ]);
 
         return back()->with('success', 'Member status updated.');
+    }
+
+    private function syncMemberLocker(Member $member, ?int $lockerId): void
+    {
+        $member->load('locker');
+
+        if (! $lockerId) {
+            $member->locker?->release();
+
+            return;
+        }
+
+        if ($member->locker_id === $lockerId) {
+            return;
+        }
+
+        Locker::findOrFail($lockerId)->assignTo($member);
     }
 }
